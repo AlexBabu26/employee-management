@@ -1,0 +1,19 @@
+# Local secrets (loaded at runtime via python-dotenv)
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# Django / SQLite
+db.sqlite3
+staticfiles/
+*.log
+
+# IDE
+.idea/
+.vscode/

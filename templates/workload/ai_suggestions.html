@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}AI suggestions · Workload Tracker{% endblock %}
+{% block topbar %}Admin / AI suggestions{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <p class="eyebrow">Assistive · OpenRouter</p>
+    <h1>AI <em>suggestions</em></h1>
+    <p class="subhead">Anonymized workload context is sent to a model; output is advisory and never moves tasks for you.</p>
+  </div>
+  <div class="period-switch" role="tablist">
+    <a href="?period=daily" class="{% if period == 'daily' %}is-active{% endif %}">Daily</a>
+    <a href="?period=weekly" class="{% if period == 'weekly' %}is-active{% endif %}">Weekly</a>
+    <a href="?period=monthly" class="{% if period == 'monthly' %}is-active{% endif %}">Monthly</a>
+  </div>
+</div>
+
+<div class="data-card" style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:1rem;">
+  <div>
+    <p class="label" style="margin:0 0 0.4rem;">Generate</p>
+    <h2 style="margin:0;">Request fresh suggestions</h2>
+    <p class="text-muted small" style="margin:0.4rem 0 0;">Set <code style="font-family:var(--font-mono);">OPENROUTER_API_KEY</code> in the environment for live calls.</p>
+  </div>
+  <form method="post" style="margin:0;">
+    {% csrf_token %}
+    <input type="hidden" name="period" value="{{ period }}">
+    <button type="submit" class="btn btn-amber">Run for {{ period }} period</button>
+  </form>
+</div>
+
+{% if error %}
+<div class="warn-banner" role="alert" style="margin-top:1rem;">
+  <strong>Could not load suggestions.</strong> {{ error }}
+</div>
+{% endif %}
+
+<div class="data-card" style="margin-top:1.25rem;">
+  <p class="label">History · newest first</p>
+  <h2>Past suggestions</h2>
+
+  {% for s in suggestions %}
+  <article style="border-top:1px dashed var(--line);padding:1.25rem 0;">
+    <header style="display:flex;flex-wrap:wrap;align-items:center;gap:0.6rem;margin-bottom:0.6rem;">
+      <span class="badge">{{ s.get_period_type_display }}</span>
+      <span class="text-muted small" style="font-family:var(--font-mono);">{{ s.created_at|date:"Y-m-d · H:i" }}</span>
+      {% if s.model_used %}
+      <span class="text-muted small" style="font-family:var(--font-mono);">· {{ s.model_used }}</span>
+      {% endif %}
+    </header>
+    <div class="ai-block">{{ s.suggestion_text }}</div>
+    {% if s.reasoning_text or s.reasoning_details %}
+    <details style="margin-top:0.75rem;">
+      <summary style="cursor:pointer;color:var(--muted);font-size:0.85rem;letter-spacing:0.04em;text-transform:uppercase;">Show reasoning trace</summary>
+      {% if s.reasoning_text %}
+      <pre style="margin:0.6rem 0 0;padding:0.85rem 1rem;background:var(--surface-2);border:1px dashed var(--line-soft);border-radius:var(--radius);color:var(--text-soft);font-family:var(--font-mono);font-size:0.82rem;line-height:1.5;white-space:pre-wrap;">{{ s.reasoning_text }}</pre>
+      {% endif %}
+      {% if s.reasoning_details %}
+      <p class="text-muted small" style="margin:0.6rem 0 0;font-family:var(--font-mono);">{{ s.reasoning_details|length }} reasoning block{{ s.reasoning_details|length|pluralize }} preserved for follow-ups.</p>
+      {% endif %}
+    </details>
+    {% endif %}
+  </article>
+  {% empty %}
+  <p class="empty" style="padding:2rem 0;">No suggestions stored yet.<br><span class="text-muted small" style="font-family:var(--font-sans);">Run the generator to populate this list.</span></p>
+  {% endfor %}
+</div>
+{% endblock %}

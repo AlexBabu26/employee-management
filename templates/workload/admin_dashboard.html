@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% block title %}Admin dashboard · Workload Tracker{% endblock %}
+{% block topbar %}Admin / Overview{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <p class="eyebrow">Today &middot; {% now "M j, Y" %}</p>
+    <h1>Team <em>at a glance</em></h1>
+    <p class="subhead">A live read on capacity, completions, and what needs attention right now.</p>
+  </div>
+  <div class="actions">
+    <a href="{% url 'workload:task_add' %}" class="btn">+ New task</a>
+    <a href="{% url 'workload:employee_add' %}" class="btn btn-ghost">+ Employee</a>
+  </div>
+</div>
+
+<div class="kpi-grid">
+  <div class="kpi kpi--sage">
+    <span>Active employees</span>
+    <strong>{{ active_employees }}</strong>
+    <small>of {{ total_employees }} total</small>
+  </div>
+  <div class="kpi">
+    <span>All tasks</span>
+    <strong>{{ total_tasks }}</strong>
+    <small>across the org</small>
+  </div>
+  <div class="kpi kpi--sage">
+    <span>Completion rate</span>
+    <strong>{{ completion_rate|floatformat:1 }}%</strong>
+    <small>completed / total</small>
+  </div>
+  <div class="kpi kpi--amber">
+    <span>Pending</span>
+    <strong>{{ pending_tasks }}</strong>
+    <small>not yet started</small>
+  </div>
+  <div class="kpi kpi--plum">
+    <span>In progress</span>
+    <strong>{{ in_progress_tasks }}</strong>
+    <small>currently active</small>
+  </div>
+  <div class="kpi">
+    <span>Completed</span>
+    <strong>{{ completed_tasks }}</strong>
+    <small>all time</small>
+  </div>
+  <div class="kpi kpi--terra">
+    <span>Overdue</span>
+    <strong>{{ overdue_tasks }}</strong>
+    <small>need attention</small>
+  </div>
+  <div class="kpi kpi--amber">
+    <span>Due today</span>
+    <strong>{{ due_today }}</strong>
+    <small>still open</small>
+  </div>
+</div>
+
+<div class="grid-2">
+  <div class="data-card">
+    <p class="label">Time slices</p>
+    <h2>Throughput windows</h2>
+    <h3>Today</h3>
+    <dl class="stat-row">
+      <div><dt>Assigned</dt><dd>{{ daily.assigned_today }}</dd></div>
+      <div><dt>Completed</dt><dd>{{ daily.completed_today }}</dd></div>
+      <div><dt>Overdue</dt><dd>{{ daily.overdue }}</dd></div>
+    </dl>
+    <h3>This week (through today)</h3>
+    <dl class="stat-row">
+      <div><dt>Tasks</dt><dd>{{ weekly.total_tasks }}</dd></div>
+      <div><dt>Completion</dt><dd>{{ weekly.completion_pct|floatformat:1 }}<em>%</em></dd></div>
+      <div><dt>Est. hours</dt><dd>{{ weekly.sum_estimated|floatformat:1 }}<em>h</em></dd></div>
+      <div><dt>Actual</dt><dd>{{ weekly.sum_actual|floatformat:1 }}<em>h</em></dd></div>
+    </dl>
+    <h3>This month</h3>
+    <dl class="stat-row">
+      <div><dt>Tasks</dt><dd>{{ monthly.total_tasks }}</dd></div>
+      <div><dt>Overdue</dt><dd>{{ monthly.overdue }}</dd></div>
+    </dl>
+  </div>
+
+  <div class="data-card">
+    <p class="label">Workload distribution</p>
+    <h2>Where the weight sits</h2>
+
+    <h3>Heaviest queues</h3>
+    {% if high_workload %}
+    <ul class="dot-list">
+      {% for e in high_workload %}
+      <li class="warn"><span>{{ e.name }}</span>
+        <span class="text-muted small" style="margin-left:auto;font-family:var(--font-mono);">{{ e.load_hours|floatformat:1 }}h</span>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}<p class="text-muted">No data yet.</p>{% endif %}
+
+    <h3>Lightest queues</h3>
+    {% if low_workload %}
+    <ul class="dot-list">
+      {% for e in low_workload %}
+      <li><span>{{ e.name }}</span>
+        <span class="text-muted small" style="margin-left:auto;font-family:var(--font-mono);">{{ e.load_hours|floatformat:1 }}h</span>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}<p class="text-muted">No data yet.</p>{% endif %}
+  </div>
+</div>
+
+<div class="data-card" style="margin-top:1.25rem;">
+  <div style="display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:1rem;">
+    <div>
+      <p class="label">Latest signals</p>
+      <h2>AI suggestions</h2>
+    </div>
+    <a href="{% url 'workload:ai_suggestions' %}" class="btn btn-ghost btn-sm">Open AI insights →</a>
+  </div>
+  {% if recent_ai %}
+  {% for s in recent_ai %}
+  <p class="ai-meta" style="margin-top:1rem;">{{ s.created_at|date:"M j, H:i" }} &middot; {{ s.get_period_type_display }}</p>
+  <div class="ai-block">{{ s.suggestion_text|truncatewords:80 }}</div>
+  {% endfor %}
+  {% else %}
+  <p class="text-muted">No suggestions yet. <a href="{% url 'workload:ai_suggestions' %}">Generate one</a> from the AI insights page.</p>
+  {% endif %}
+</div>
+{% endblock %}

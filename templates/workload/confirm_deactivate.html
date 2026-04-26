@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Deactivate {{ employee.full_name }} · Workload Tracker{% endblock %}
+{% block topbar %}Admin / Employees / Deactivate{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <p class="eyebrow" style="color:var(--amber);">Account change</p>
+    <h1>Deactivate this account?</h1>
+    <p class="subhead">The user can be reactivated later from their profile page.</p>
+  </div>
+</div>
+
+<div class="data-card" style="max-width:560px;border-color:rgba(212,168,90,0.32);">
+  <p class="label" style="color:var(--amber);">Confirm</p>
+  <h2 style="margin-top:0.4rem;">{{ employee.full_name }}</h2>
+  <p class="text-muted">Username <span style="font-family:var(--font-mono);color:var(--text);">@{{ employee.user.username }}</span> will no longer be able to sign in or be assigned new tasks.</p>
+  <form method="post" class="actions" style="border-top:1px dashed var(--line);padding-top:1rem;margin-top:1rem;">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Deactivate</button>
+    <a href="{% url 'workload:employee_detail' employee.pk %}" class="btn btn-ghost">Cancel</a>
+  </form>
+</div>
+{% endblock %}

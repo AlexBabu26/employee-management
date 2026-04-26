@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Delete task · Workload Tracker{% endblock %}
+{% block topbar %}Admin / Tasks / Delete{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <p class="eyebrow" style="color:var(--terra);">Destructive action</p>
+    <h1>Delete this task?</h1>
+    <p class="subhead">This will permanently remove the assignment from the ledger. You can't undo it.</p>
+  </div>
+</div>
+
+<div class="data-card" style="max-width:560px;border-color:rgba(196,106,81,0.30);">
+  <p class="label" style="color:var(--terra);">Confirm</p>
+  <h2 style="margin-top:0.4rem;">{{ task.title }}</h2>
+  <dl class="stat-row" style="margin:1rem 0;">
+    <div><dt>Assignee</dt><dd style="font-size:1rem;font-family:var(--font-sans);">{{ task.assigned_to.full_name }}</dd></div>
+    <div><dt>Due</dt><dd style="font-size:1rem;font-family:var(--font-mono);">{{ task.due_date|date:"Y-m-d" }}</dd></div>
+    <div><dt>Status</dt><dd style="font-size:1rem;font-family:var(--font-sans);">{{ task.get_status_display }}</dd></div>
+  </dl>
+  <form method="post" class="actions" style="border-top:1px dashed var(--line);padding-top:1rem;">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Yes, delete it</button>
+    <a href="{% url 'workload:task_edit' task.pk %}" class="btn btn-ghost">Keep task</a>
+  </form>
+</div>
+{% endblock %}

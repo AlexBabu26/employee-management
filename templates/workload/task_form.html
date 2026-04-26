@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}{% if add %}New task{% else %}Edit task{% endif %} · Workload Tracker{% endblock %}
+{% block topbar %}Admin / Tasks / {% if add %}New{% else %}Edit{% endif %}{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <p class="eyebrow">{% if add %}New assignment{% else %}Editing task #{{ task.pk }}{% endif %}</p>
+    <h1>{% if add %}Create a <em>task</em>{% else %}Edit <em>{{ task.title }}</em>{% endif %}</h1>
+    <p class="subhead">Assign work, set scope, and watch the load distribution as you choose an assignee.</p>
+  </div>
+  <a href="{% url 'workload:task_list' %}" class="btn btn-ghost btn-sm">← Back</a>
+</div>
+
+{% if workload_warn %}
+<div class="warn-banner">
+  <strong>Heads up:</strong> this assignee is above the high-workload threshold ({{ high_load_threshold }}h of open work). Consider redistributing.
+</div>
+{% endif %}
+
+<div class="grid-2">
+  <div class="data-card">
+    <p class="label">Details</p>
+    <h2>Task</h2>
+    <form method="post" class="form" id="task-form">
+      {% csrf_token %}
+      {% if form.non_field_errors %}<ul class="errorlist">{% for e in form.non_field_errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+
+      <label>Title
+        {{ form.title }}
+        {% if form.title.errors %}<ul class="errorlist">{% for e in form.title.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+      </label>
+      <label>Description
+        {{ form.description }}
+      </label>
+      <label>Assign to
+        {{ form.assigned_to }}
+        {% if form.assigned_to.errors %}<ul class="errorlist">{% for e in form.assigned_to.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+      </label>
+
+      <div class="form-row">
+        <label>Priority
+          {{ form.priority }}
+        </label>
+        <label>Status
+          {{ form.status }}
+        </label>
+      </div>
+      <div class="form-row">
+        <label>Start date
+          {{ form.start_date }}
+        </label>
+        <label>Due date
+          {{ form.due_date }}
+          {% if form.due_date.errors %}<ul class="errorlist">{% for e in form.due_date.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+        </label>
+      </div>
+      <div class="form-row">
+        <label>Estimated hours
+          {{ form.estimated_hours }}
+        </label>
+        <label>Actual hours
+          {{ form.actual_hours }}
+        </label>
+      </div>
+
+      <div class="actions" style="margin-top:1.5rem;">
+        <button type="submit" class="btn">{% if add %}Create task{% else %}Save changes{% endif %}</button>
+        {% if not add %}
+        <a href="{% url 'workload:task_delete' task.pk %}" class="btn btn-ghost" style="color:var(--terra);border-color:rgba(196,106,81,0.30);">Delete</a>
+        {% endif %}
+        <a href="{% url 'workload:task_list' %}" class="btn btn-ghost">Cancel</a>
+      </div>
+    </form>
+  </div>
+
+  <div class="data-card">
+    <p class="label">Capacity preview</p>
+    <h2>Open workload by person</h2>
+    <p class="text-muted small">Estimated hours of open (non-completed) work per active employee. Use this to balance.</p>
+    {% if load_list %}
+    <ul class="dot-list">
+      {% for e, hours in load_list %}
+      <li class="{% if hours >= high_load_threshold %}warn{% endif %}">
+        <span>{{ e.full_name }}</span>
+        <span class="text-muted small" style="margin-left:auto;font-family:var(--font-mono);">{{ hours|floatformat:1 }}h</span>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p class="text-muted">No active employees yet.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

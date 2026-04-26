@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Completed tasks · Workload Tracker{% endblock %}
+{% block topbar %}Workspace / Completed{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <p class="eyebrow">Archive · {{ tasks|length }} task{{ tasks|length|pluralize }}</p>
+    <h1>Completed work</h1>
+    <p class="subhead">A record of everything you've shipped.</p>
+  </div>
+</div>
+
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>Title</th>
+        <th class="num">Completed</th>
+        <th class="num">Actual hours</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for t in tasks %}
+      <tr>
+        <td><a href="{% url 'workload:task_detail_employee' t.pk %}">{{ t.title }}</a></td>
+        <td class="num">{{ t.completed_at|date:"Y-m-d · H:i" }}</td>
+        <td class="num">{{ t.actual_hours|default:"—" }}</td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="3"><p class="empty">No completed tasks yet.</p></td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

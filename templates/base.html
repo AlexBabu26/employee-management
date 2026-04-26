@@ -1,0 +1,97 @@
+{% load static %}<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Workload Tracker{% endblock %}</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,400..700,30..100;1,9..144,400..700,30..100&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/app.css' %}">
+
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+{% block body %}
+  {% with url_name=request.resolver_match.url_name %}
+  <div class="shell">
+    {% if user.is_authenticated %}
+    <aside class="rail">
+      <a class="rail__brand" href="{% url 'workload:index' %}">
+        <span class="rail__brand-mark" aria-hidden="true"></span>
+        <span class="rail__brand-text">Work<em>load</em></span>
+      </a>
+
+      {% if user.profile.is_admin %}
+      <div class="rail__section">Admin</div>
+      <nav class="rail__nav">
+        <a href="{% url 'workload:admin_dashboard' %}" class="{% if url_name == 'admin_dashboard' %}is-active{% endif %}">
+          <span class="ic">◆</span><span>Dashboard</span>
+        </a>
+        <a href="{% url 'workload:employee_list' %}" class="{% if url_name == 'employee_list' or url_name == 'employee_add' or url_name == 'employee_edit' or url_name == 'employee_detail' or url_name == 'employee_deactivate' %}is-active{% endif %}">
+          <span class="ic">◇</span><span>Employees</span>
+        </a>
+        <a href="{% url 'workload:task_list' %}" class="{% if url_name == 'task_list' or url_name == 'task_add' or url_name == 'task_edit' or url_name == 'task_delete' %}is-active{% endif %}">
+          <span class="ic">▤</span><span>Tasks</span>
+        </a>
+        <a href="{% url 'workload:statistics' %}" class="{% if url_name == 'statistics' %}is-active{% endif %}">
+          <span class="ic">≣</span><span>Statistics</span>
+        </a>
+        <a href="{% url 'workload:ai_suggestions' %}" class="{% if url_name == 'ai_suggestions' %}is-active{% endif %}">
+          <span class="ic">✦</span><span>AI insights</span>
+        </a>
+      </nav>
+      {% else %}
+      <div class="rail__section">Workspace</div>
+      <nav class="rail__nav">
+        <a href="{% url 'workload:employee_dashboard' %}" class="{% if url_name == 'employee_dashboard' %}is-active{% endif %}">
+          <span class="ic">◆</span><span>Dashboard</span>
+        </a>
+        <a href="{% url 'workload:my_tasks' %}" class="{% if url_name == 'my_tasks' or url_name == 'task_detail_employee' %}is-active{% endif %}">
+          <span class="ic">▤</span><span>My tasks</span>
+        </a>
+        <a href="{% url 'workload:completed_tasks' %}" class="{% if url_name == 'completed_tasks' %}is-active{% endif %}">
+          <span class="ic">✓</span><span>Completed</span>
+        </a>
+      </nav>
+      {% endif %}
+
+      <div class="rail__user">
+        <span class="rail__avatar">{{ user.get_full_name|default:user.username|slice:":1"|upper }}</span>
+        <div class="rail__who">
+          <strong>{{ user.get_full_name|default:user.username }}</strong>
+          <span>{% if user.profile.is_admin %}Admin{% else %}Employee{% endif %}</span>
+        </div>
+        <a class="rail__logout" href="{% url 'accounts:logout' %}" title="Sign out">↗</a>
+      </div>
+    </aside>
+    {% endif %}
+
+    <div class="main">
+      {% if user.is_authenticated %}
+      <div class="topbar">
+        <span class="topbar__crumbs">{% block topbar %}{% if user.profile.is_admin %}Admin / Overview{% else %}Workspace / Overview{% endif %}{% endblock %}</span>
+        <span class="topbar__time">{% now "D, M j · H:i" %}</span>
+      </div>
+      {% endif %}
+
+      {% if messages %}
+      <ul class="messages">
+        {% for m in messages %}
+        <li class="msg msg-{{ m.tags }}">{{ m }}</li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+
+      <main class="page">
+        {% block content %}{% endblock %}
+      </main>
+    </div>
+  </div>
+  {% endwith %}
+{% endblock %}
+
+{% block extra_js %}{% endblock %}
+</body>
+</html>

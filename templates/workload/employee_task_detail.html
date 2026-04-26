@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}{{ task.title }} · Workload Tracker{% endblock %}
+{% block topbar %}Workspace / My tasks / {{ task.title|truncatechars:32 }}{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <p class="eyebrow">
+      {% if task.status == "overdue" %}<span class="text-danger">Overdue</span> · {% endif %}
+      Due {{ task.due_date|date:"M j, Y" }}
+    </p>
+    <h1>{{ task.title }}</h1>
+    <p class="subhead" style="display:flex;flex-wrap:wrap;gap:0.6rem;align-items:center;">
+      {% if task.status == "pending" %}<span class="badge badge-pending">Pending</span>
+      {% elif task.status == "in_progress" %}<span class="badge badge-progress">In progress</span>
+      {% elif task.status == "completed" %}<span class="badge badge-done">Completed</span>
+      {% elif task.status == "overdue" %}<span class="badge badge-overdue">Overdue</span>
+      {% endif %}
+      <span class="priority priority-{{ task.priority }}">{{ task.get_priority_display }}</span>
+    </p>
+  </div>
+  <a href="{% url 'workload:my_tasks' %}" class="btn btn-ghost btn-sm">← Back to list</a>
+</div>
+
+<div class="grid-2">
+  <div class="data-card">
+    <p class="label">Brief</p>
+    <h2>Description</h2>
+    <p style="white-space:pre-wrap;color:var(--text-soft);">{{ task.description|default:"(No description provided.)" }}</p>
+    <dl class="stat-row" style="margin-top:1.25rem;">
+      <div><dt>Estimated</dt><dd>{{ task.estimated_hours }}<em>h</em></dd></div>
+      <div><dt>Actual</dt><dd>{{ task.actual_hours|default:"—" }}{% if task.actual_hours %}<em>h</em>{% endif %}</dd></div>
+      <div><dt>Start</dt><dd style="font-size:1rem;font-family:var(--font-mono);">{{ task.start_date|date:"Y-m-d" }}</dd></div>
+    </dl>
+  </div>
+
+  <div class="data-card">
+    <p class="label">Progress</p>
+    <h2>Update status</h2>
+    <form method="post" class="form">
+      {% csrf_token %}
+      <label>Status
+        {{ form.status }}
+      </label>
+      <label>Actual hours logged
+        {{ form.actual_hours }}
+      </label>
+      {% if form.errors %}<ul class="errorlist">{% for fld, errs in form.errors.items %}{% for e in errs %}<li>{{ fld }}: {{ e }}</li>{% endfor %}{% endfor %}</ul>{% endif %}
+      <div class="actions">
+        <button type="submit" class="btn">Save changes</button>
+        <a href="{% url 'workload:my_tasks' %}" class="btn btn-ghost">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

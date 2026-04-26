@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}{{ employee.full_name }} · Workload Tracker{% endblock %}
+{% block topbar %}Admin / Employees / {{ employee.full_name }}{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <p class="eyebrow">@{{ employee.user.username }} · {{ employee.department|default:"No department" }}</p>
+    <h1>{{ employee.full_name }}</h1>
+    <p class="subhead">{{ employee.designation|default:"—" }} &middot; {{ employee.email }}</p>
+  </div>
+  <div class="actions">
+    <a href="{% url 'workload:employee_edit' employee.pk %}" class="btn">Edit profile</a>
+    {% if employee.is_active %}
+    <a href="{% url 'workload:employee_deactivate' employee.pk %}" class="btn btn-ghost">Deactivate</a>
+    {% endif %}
+    <a href="{% url 'workload:task_add' %}?employee={{ employee.pk }}" class="btn btn-amber">+ Assign task</a>
+  </div>
+</div>
+
+<div class="kpi-grid">
+  <div class="kpi kpi--sage">
+    <span>Open workload</span>
+    <strong>{{ load_hours|floatformat:1 }}</strong>
+    <small>est. hours remaining</small>
+  </div>
+  <div class="kpi">
+    <span>Completed (all time)</span>
+    <strong>{{ completed_count }}</strong>
+    <small>tasks shipped</small>
+  </div>
+  <div class="kpi {% if employee.is_active %}kpi--sage{% else %}kpi--terra{% endif %}">
+    <span>Status</span>
+    <strong>{% if employee.is_active %}Active{% else %}Inactive{% endif %}</strong>
+    <small>{% if employee.date_joined %}joined {{ employee.date_joined|date:"M j, Y" }}{% else %}—{% endif %}</small>
+  </div>
+</div>
+
+<div class="data-card">
+  <p class="label">Recent assignments</p>
+  <h2>Tasks</h2>
+  <div class="table-wrap" style="border:none;">
+    <table>
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Status</th>
+          <th>Priority</th>
+          <th class="num">Due</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for t in tasks %}
+        <tr>
+          <td><a href="{% url 'workload:task_edit' t.pk %}">{{ t.title }}</a></td>
+          <td>
+            {% if t.status == "pending" %}<span class="badge badge-pending">Pending</span>
+            {% elif t.status == "in_progress" %}<span class="badge badge-progress">In progress</span>
+            {% elif t.status == "completed" %}<span class="badge badge-done">Completed</span>
+            {% elif t.status == "overdue" %}<span class="badge badge-overdue">Overdue</span>
+            {% endif %}
+          </td>
+          <td><span class="priority priority-{{ t.priority }}">{{ t.get_priority_display }}</span></td>
+          <td class="num">{{ t.due_date|date:"Y-m-d" }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4"><p class="empty">No tasks yet.</p></td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

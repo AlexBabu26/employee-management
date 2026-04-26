@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Sign in · Workload Tracker{% endblock %}
+
+{% block body %}
+<div class="login">
+  <section class="login__brand">
+    <div class="login__mark">
+      <span class="dot" aria-hidden="true"></span>
+      <span class="name">Work<em>load</em> Tracker</span>
+    </div>
+
+    <div class="login__hero">
+      <p class="eyebrow">Capacity / Clarity / Calm</p>
+      <h1>A quieter way to <em>orchestrate</em> the work of a team.</h1>
+      <p>Track assignments, balance workloads, and surface what needs attention &mdash; all from a single, considered workspace.</p>
+    </div>
+
+    <div class="login__meta">
+      <div><b>Daily</b>signal, not noise</div>
+      <div><b>Weekly</b>workload balance</div>
+      <div><b>Monthly</b>completion trends</div>
+    </div>
+  </section>
+
+  <section class="login__panel">
+    <div class="login__form">
+      <p class="eyebrow">Welcome back</p>
+      <h2>Sign in</h2>
+      <p class="lead">Use your team credentials to continue.</p>
+
+      {% if messages %}
+      <ul class="messages" style="margin: 0 0 1rem; padding: 0;">
+        {% for m in messages %}<li class="msg msg-{{ m.tags }}">{{ m }}</li>{% endfor %}
+      </ul>
+      {% endif %}
+
+      <form method="post" class="form">
+        {% csrf_token %}
+        {% if form.non_field_errors %}
+        <ul class="errorlist">{% for e in form.non_field_errors %}<li>{{ e }}</li>{% endfor %}</ul>
+        {% endif %}
+        <label>Username
+          {{ form.username }}
+        </label>
+        <label>Password
+          {{ form.password }}
+        </label>
+        <button type="submit" class="btn">Sign in &nbsp;→</button>
+      </form>
+
+      <p class="login__hint">Tip · seeded admin <code>seed_user_01</code> &nbsp;/&nbsp; <code>seedpass123</code></p>
+    </div>
+  </section>
+</div>
+{% endblock %}

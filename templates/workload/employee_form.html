@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}{% if add %}Add{% else %}Edit{% endif %} employee · Workload Tracker{% endblock %}
+{% block topbar %}Admin / Employees / {% if add %}New{% else %}Edit{% endif %}{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <p class="eyebrow">{% if add %}New record{% else %}Editing existing record{% endif %}</p>
+    <h1>{% if add %}Add an <em>employee</em>{% else %}Edit <em>{{ employee.full_name }}</em>{% endif %}</h1>
+    <p class="subhead">Sets up the user account, login, and employee profile in one form.</p>
+  </div>
+  <a href="{% if employee %}{% url 'workload:employee_detail' employee.pk %}{% else %}{% url 'workload:employee_list' %}{% endif %}" class="btn btn-ghost btn-sm">← Cancel</a>
+</div>
+
+<div class="data-card" style="max-width:760px;">
+  <form method="post" class="form">
+    {% csrf_token %}
+    {% if form.non_field_errors %}<ul class="errorlist">{% for e in form.non_field_errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+
+    <h3 style="margin-top:0;">Account</h3>
+    <div class="form-row">
+      <label>Username
+        {{ form.username }}
+        {% if form.username.errors %}<ul class="errorlist">{% for e in form.username.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+      </label>
+      <label>Password
+        {{ form.password }}
+        {% if form.password.errors %}<ul class="errorlist">{% for e in form.password.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+      </label>
+    </div>
+
+    <h3>Profile</h3>
+    <label>Full name
+      {{ form.full_name }}
+      {% if form.full_name.errors %}<ul class="errorlist">{% for e in form.full_name.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+    </label>
+    <label>Email
+      {{ form.email }}
+      {% if form.email.errors %}<ul class="errorlist">{% for e in form.email.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+    </label>
+    <div class="form-row">
+      <label>Department
+        {{ form.department }}
+      </label>
+      <label>Designation
+        {{ form.designation }}
+      </label>
+    </div>
+    <div class="form-row">
+      <label style="display:flex;align-items:center;gap:0.5rem;margin-top:1.85rem;">
+        {{ form.is_active }}<span>Active (can sign in)</span>
+      </label>
+      <label>Date joined
+        {{ form.date_joined }}
+        {% if form.date_joined.errors %}<ul class="errorlist">{% for e in form.date_joined.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+      </label>
+    </div>
+
+    <div class="actions" style="margin-top:1.5rem;">
+      <button type="submit" class="btn">{% if add %}Create employee{% else %}Save changes{% endif %}</button>
+      <a href="{% if employee %}{% url 'workload:employee_detail' employee.pk %}{% else %}{% url 'workload:employee_list' %}{% endif %}" class="btn btn-ghost">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

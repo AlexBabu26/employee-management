@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block title %}My dashboard · Workload Tracker{% endblock %}
+{% block topbar %}Workspace / Today{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <p class="eyebrow">Welcome, {{ user.get_full_name|default:user.username }}</p>
+    <h1>Today's <em>focus</em></h1>
+    <p class="subhead">Here's what's open, what's due, and what's coming next.</p>
+  </div>
+  <div class="actions">
+    <a href="{% url 'workload:my_tasks' %}" class="btn">Open task list</a>
+  </div>
+</div>
+
+<div class="kpi-grid">
+  <div class="kpi kpi--amber">
+    <span>Pending</span>
+    <strong>{{ pending.count }}</strong>
+    <small>not yet started</small>
+  </div>
+  <div class="kpi kpi--plum">
+    <span>In progress</span>
+    <strong>{{ in_progress.count }}</strong>
+    <small>actively working</small>
+  </div>
+  <div class="kpi kpi--sage">
+    <span>Completed</span>
+    <strong>{{ completed.count }}</strong>
+    <small>all time</small>
+  </div>
+  <div class="kpi kpi--terra">
+    <span>Overdue</span>
+    <strong>{{ overdue.count }}</strong>
+    <small>need action</small>
+  </div>
+</div>
+
+<div class="grid-2">
+  <div class="data-card">
+    <p class="label">Reminders</p>
+    <h2>Needs attention</h2>
+
+    {% if overdue %}
+    <h3 style="color:var(--terra);">Overdue · {{ overdue.count }}</h3>
+    <ul class="dot-list">
+      {% for t in overdue|slice:":5" %}
+      <li class="danger">
+        <a href="{% url 'workload:task_detail_employee' t.pk %}">{{ t.title }}</a>
+        <span class="text-muted small" style="margin-left:auto;font-family:var(--font-mono);">due {{ t.due_date|date:"M j" }}</span>
+      </li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+
+    {% if due_today %}
+    <h3 style="color:var(--amber);margin-top:1.25rem;">Due today · {{ due_today.count }}</h3>
+    <ul class="dot-list">
+      {% for t in due_today|slice:":8" %}
+      <li class="warn">
+        <a href="{% url 'workload:task_detail_employee' t.pk %}">{{ t.title }}</a>
+        <span class="badge badge-pending" style="margin-left:auto;">{{ t.get_status_display }}</span>
+      </li>
+      {% endfor %}
+    </ul>
+    {% elif not overdue %}
+    <p class="empty" style="padding:1.5rem 0;">All clear for today.<br><span class="text-muted small" style="font-family:var(--font-sans);">Check upcoming work below.</span></p>
+    {% endif %}
+  </div>
+
+  <div class="data-card">
+    <p class="label">Looking ahead</p>
+    <h2>Upcoming</h2>
+    {% if upcoming %}
+    <ul class="dot-list">
+      {% for t in upcoming %}
+      <li>
+        <a href="{% url 'workload:task_detail_employee' t.pk %}">{{ t.title }}</a>
+        <span class="text-muted small" style="margin-left:auto;font-family:var(--font-mono);">{{ t.due_date|date:"M j" }}</span>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p class="empty" style="padding:1.5rem 0;">No upcoming items.</p>
+    {% endif %}
+  </div>
+</div>
+
+{% endblock %}
