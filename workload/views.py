@@ -12,7 +12,7 @@ from accounts.models import UserProfile
 from .decorators import admin_only, employee_only
 from .forms import EmployeeForm, EmployeeTaskUpdateForm, TaskForm
 from .models import AISuggestion, Employee, Task, refresh_task_overdue_status
-from .services import ai_openrouter
+from .services import ai_groq
 from .services.analytics import (
     active_employees,
     completion_trend_monthly,
@@ -366,7 +366,7 @@ def ai_suggestions(request):
             period = "weekly"
         payload = _anonymized_payload(period)
         try:
-            result = ai_openrouter.fetch_workload_suggestion(payload, period)
+            result = ai_groq.fetch_workload_suggestion(payload, period)
             AISuggestion.objects.create(
                 generated_by=request.user,
                 suggestion_text=result["content"],

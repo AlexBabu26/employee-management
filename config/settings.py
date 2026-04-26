@@ -126,7 +126,5 @@ LOGIN_URL = "accounts:login"
 LOGIN_REDIRECT_URL = "workload:index"
 LOGOUT_REDIRECT_URL = "accounts:login"
 
-OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY", "")
-OPENROUTER_MODEL = os.environ.get(
-    "OPENROUTER_MODEL", "google/gemma-4-26b-a4b-it:free"
-)
+GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "")
+GROQ_MODEL = os.environ.get("GROQ_MODEL", "openai/gpt-oss-20b")

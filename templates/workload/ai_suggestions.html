@@ -5,7 +5,7 @@
 
 <div class="page-header">
   <div>
-    <p class="eyebrow">Assistive · OpenRouter</p>
+    <p class="eyebrow">Assistive · Groq</p>
     <h1>AI <em>suggestions</em></h1>
     <p class="subhead">Anonymized workload context is sent to a model; output is advisory and never moves tasks for you.</p>
   </div>
@@ -20,7 +20,7 @@
   <div>
     <p class="label" style="margin:0 0 0.4rem;">Generate</p>
     <h2 style="margin:0;">Request fresh suggestions</h2>
-    <p class="text-muted small" style="margin:0.4rem 0 0;">Set <code style="font-family:var(--font-mono);">OPENROUTER_API_KEY</code> in the environment for live calls.</p>
+    <p class="text-muted small" style="margin:0.4rem 0 0;">Set <code style="font-family:var(--font-mono);">GROQ_API_KEY</code> (and optionally <code style="font-family:var(--font-mono);">GROQ_MODEL</code>) for live calls. Structured JSON is enforced via Groq <a href="https://console.groq.com/docs/structured-outputs" target="_blank" rel="noopener">structured outputs</a>.</p>
   </div>
   <form method="post" style="margin:0;">
     {% csrf_token %}
@@ -56,7 +56,7 @@
       <pre style="margin:0.6rem 0 0;padding:0.85rem 1rem;background:var(--surface-2);border:1px dashed var(--line-soft);border-radius:var(--radius);color:var(--text-soft);font-family:var(--font-mono);font-size:0.82rem;line-height:1.5;white-space:pre-wrap;">{{ s.reasoning_text }}</pre>
       {% endif %}
       {% if s.reasoning_details %}
-      <p class="text-muted small" style="margin:0.6rem 0 0;font-family:var(--font-mono);">{{ s.reasoning_details|length }} reasoning block{{ s.reasoning_details|length|pluralize }} preserved for follow-ups.</p>
+      <p class="text-muted small" style="margin:0.6rem 0 0;font-family:var(--font-mono);">Structured JSON snapshot ({{ s.reasoning_details|length }} record{{ s.reasoning_details|length|pluralize }}).</p>
       {% endif %}
     </details>
     {% endif %}
