@@ -130,6 +130,46 @@ def high_low_employees() -> tuple[list[dict], list[dict]]:
     return data[:n], data[-n:][::-1]
 
 
+def employee_hour_breakdown() -> list[dict[str, object]]:
+    open_statuses = [
+        Task.Status.PENDING,
+        Task.Status.IN_PROGRESS,
+        Task.Status.OVERDUE,
+    ]
+    rows = (
+        active_employees()
+        .annotate(
+            open_estimated=Sum(
+                "tasks__estimated_hours", filter=Q(tasks__status__in=open_statuses)
+            ),
+            actual_completed=Sum(
+                "tasks__actual_hours", filter=Q(tasks__status=Task.Status.COMPLETED)
+            ),
+            open_tasks=Count("tasks", filter=Q(tasks__status__in=open_statuses)),
+            completed_tasks=Count("tasks", filter=Q(tasks__status=Task.Status.COMPLETED)),
+        )
+        .values(
+            "full_name",
+            "open_estimated",
+            "actual_completed",
+            "open_tasks",
+            "completed_tasks",
+        )
+    )
+    data = [
+        {
+            "full_name": row["full_name"],
+            "open_estimated_hours": float(row["open_estimated"] or 0),
+            "actual_completed_hours": float(row["actual_completed"] or 0),
+            "open_task_count": row["open_tasks"],
+            "completed_task_count": row["completed_tasks"],
+        }
+        for row in rows
+    ]
+    data.sort(key=lambda row: (-row["open_estimated_hours"], row["full_name"]))
+    return data
+
+
 def completion_trend_monthly() -> list[dict[str, int | str]]:
     out = []
     for month_start in _first_day_prev_months(6):
@@ -149,12 +189,4 @@ def completion_trend_monthly() -> list[dict[str, int | str]]:
 
 
 def workload_distribution() -> list[dict[str, object]]:
-    return list(
-        active_employees()
-        .annotate(
-            task_count=Count(
-                "tasks", filter=~Q(tasks__status=Task.Status.COMPLETED)
-            )
-        )
-        .values("full_name", "task_count")
-    )
+    return employee_hour_breakdown()

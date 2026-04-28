@@ -781,6 +781,147 @@ td a:hover { color: var(--sage); border-bottom-color: var(--sage); text-decorati
   height: 280px;
   margin-top: 0.8rem;
 }
+.chart-wrap--wide { height: 420px; }
+
+/* ============================================================
+   Statistics: hourly workload visibility
+   ============================================================ */
+.hours-card {
+  margin-top: 1.25rem;
+  background:
+    radial-gradient(900px 280px at 10% 0%, rgba(212,168,90,0.09), transparent 58%),
+    linear-gradient(180deg, rgba(255,255,255,0.018), rgba(0,0,0,0.12)),
+    var(--surface);
+}
+.hours-card__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.25rem;
+  margin-bottom: 1rem;
+}
+.hours-card__header h2 { margin-bottom: 0.35rem; }
+.hours-card__header .small { margin: 0; max-width: 76ch; }
+.hours-legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.55rem;
+  min-width: 240px;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.hours-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.34rem 0.55rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(0,0,0,0.14);
+}
+.legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.legend-dot--open { background: var(--amber); box-shadow: 0 0 12px rgba(212,168,90,0.35); }
+.legend-dot--actual { background: var(--teal); box-shadow: 0 0 12px rgba(111,163,154,0.35); }
+.hours-table-wrap {
+  border-color: var(--line-soft);
+  background: rgba(20,19,15,0.35);
+  overflow-x: auto;
+}
+.hours-table {
+  min-width: 760px;
+  font-size: 0.94rem;
+}
+.hours-table thead {
+  background:
+    linear-gradient(180deg, rgba(179,196,116,0.07), rgba(255,255,255,0.01)),
+    var(--bg-elev);
+}
+.hours-table th {
+  padding-top: 0.82rem;
+  padding-bottom: 0.82rem;
+}
+.hours-table td {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+.hours-employee {
+  color: var(--text);
+  font-weight: 700;
+}
+.hour-cell {
+  display: grid;
+  grid-template-columns: 86px minmax(130px, 1fr);
+  align-items: center;
+  gap: 0.75rem;
+}
+.hour-value {
+  display: inline-flex;
+  justify-content: flex-end;
+  align-items: center;
+  min-width: 76px;
+  padding: 0.22rem 0.45rem;
+  border-radius: 7px;
+  font-family: var(--font-mono);
+  font-size: 0.86rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.hour-value--open {
+  color: #f1cc83;
+  background: rgba(212,168,90,0.10);
+  border: 1px solid rgba(212,168,90,0.24);
+}
+.hour-value--actual {
+  color: #a9d0c9;
+  background: rgba(111,163,154,0.10);
+  border: 1px solid rgba(111,163,154,0.24);
+}
+.hour-bar {
+  height: 10px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: rgba(255,255,255,0.045);
+  border: 1px solid rgba(255,255,255,0.04);
+}
+.hour-bar__fill {
+  display: block;
+  height: 100%;
+  min-width: 3px;
+  border-radius: inherit;
+}
+.hour-bar__fill--open {
+  background: linear-gradient(90deg, rgba(212,168,90,0.55), var(--amber));
+}
+.hour-bar__fill--actual {
+  background: linear-gradient(90deg, rgba(111,163,154,0.55), var(--teal));
+}
+.task-pair {
+  white-space: nowrap;
+  color: var(--muted);
+}
+.task-pair strong {
+  color: var(--text);
+  font-family: var(--font-mono);
+  margin-left: 0.7rem;
+}
+.task-pair strong:first-child { margin-left: 0; }
+.task-pair span {
+  margin-left: 0.25rem;
+  font-size: 0.78rem;
+}
+@media (max-width: 760px) {
+  .hours-card__header { flex-direction: column; }
+  .hours-legend { justify-content: flex-start; min-width: 0; }
+}
 
 /* ============================================================
    Login (split editorial layout)

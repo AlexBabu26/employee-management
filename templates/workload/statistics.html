@@ -37,6 +37,57 @@
   <div class="kpi"><span>Sum actual h</span><strong>{{ stats.sum_actual|floatformat:1 }}</strong></div>
 </div>
 
+<div class="data-card hours-card">
+  <div class="hours-card__header">
+    <div>
+      <p class="label">Current workload hours</p>
+      <h2>Hourly visibility by employee</h2>
+      <p class="text-muted small">Open estimated hours include pending, in-progress, and overdue work. Actual completed hours only count completed tasks.</p>
+    </div>
+    <div class="hours-legend" aria-label="Workload legend">
+      <span><i class="legend-dot legend-dot--open"></i>Open estimate</span>
+      <span><i class="legend-dot legend-dot--actual"></i>Actual completed</span>
+    </div>
+  </div>
+  <div class="table-wrap hours-table-wrap">
+    <table class="hours-table">
+      <thead>
+        <tr>
+          <th>Employee</th>
+          <th>Open estimated workload</th>
+          <th>Actual completed</th>
+          <th class="num">Tasks</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in distribution %}
+        <tr>
+          <td class="hours-employee">{{ row.full_name }}</td>
+          <td>
+            <div class="hour-cell">
+              <span class="hour-value hour-value--open">{{ row.open_estimated_hours|floatformat:1 }}h</span>
+              <span class="hour-bar" aria-hidden="true"><span class="hour-bar__fill hour-bar__fill--open" style="width:{% widthratio row.open_estimated_hours 40 100 %}%;"></span></span>
+            </div>
+          </td>
+          <td>
+            <div class="hour-cell">
+              <span class="hour-value hour-value--actual">{{ row.actual_completed_hours|floatformat:1 }}h</span>
+              <span class="hour-bar" aria-hidden="true"><span class="hour-bar__fill hour-bar__fill--actual" style="width:{% widthratio row.actual_completed_hours 40 100 %}%;"></span></span>
+            </div>
+          </td>
+          <td class="num task-pair">
+            <strong>{{ row.open_task_count }}</strong><span>open</span>
+            <strong>{{ row.completed_task_count }}</strong><span>done</span>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4"><p class="empty">No active employees found.</p></td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
 <div class="grid-2">
   <div class="data-card">
     <p class="label">By person</p>
@@ -94,8 +145,8 @@
   <h3>Completions by month · last 6</h3>
   <div class="chart-wrap"><canvas id="trend-canvas"></canvas></div>
 
-  <h3>Open task count by employee</h3>
-  <div class="chart-wrap" style="height:340px;"><canvas id="dist-canvas"></canvas></div>
+  <h3>Hourly workload by employee</h3>
+  <div class="chart-wrap chart-wrap--wide"><canvas id="dist-canvas"></canvas></div>
 </div>
 {% endblock %}
 
@@ -105,6 +156,7 @@
   const css = getComputedStyle(document.documentElement);
   const SAGE  = css.getPropertyValue("--sage").trim()  || "#b3c474";
   const AMBER = css.getPropertyValue("--amber").trim() || "#d4a85a";
+  const TEAL  = css.getPropertyValue("--teal").trim()  || "#6fa39a";
   const LINE  = css.getPropertyValue("--line").trim()  || "#2c2a22";
   const MUTED = css.getPropertyValue("--muted").trim() || "#8c887b";
   const TEXT  = css.getPropertyValue("--text").trim()  || "#ece8de";
@@ -159,25 +211,35 @@
       type: "bar",
       data: {
         labels: dist.map((x) => x.full_name),
-        datasets: [{
-          label: "Open tasks",
-          data: dist.map((x) => x.task_count),
-          backgroundColor: AMBER,
-          borderColor: AMBER,
-          borderRadius: 4,
-          maxBarThickness: 18,
-        }],
+        datasets: [
+          {
+            label: "Open estimated hours",
+            data: dist.map((x) => x.open_estimated_hours),
+            backgroundColor: AMBER,
+            borderColor: AMBER,
+            borderRadius: 4,
+            maxBarThickness: 18,
+          },
+          {
+            label: "Actual completed hours",
+            data: dist.map((x) => x.actual_completed_hours),
+            backgroundColor: TEAL,
+            borderColor: TEAL,
+            borderRadius: 4,
+            maxBarThickness: 18,
+          },
+        ],
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
         indexAxis: "y",
         plugins: {
-          legend: { display: false },
+          legend: { display: true },
           tooltip: { backgroundColor: "#1f1d17", borderColor: LINE, borderWidth: 1, titleColor: TEXT, bodyColor: TEXT },
         },
         scales: {
-          x: { grid: { color: LINE, drawBorder: false }, ticks: { color: MUTED, precision: 0 } },
+          x: { grid: { color: LINE, drawBorder: false }, ticks: { color: MUTED, precision: 0 }, title: { display: true, text: "Hours", color: MUTED } },
           y: { grid: { display: false }, ticks: { color: TEXT } },
         },
       },
