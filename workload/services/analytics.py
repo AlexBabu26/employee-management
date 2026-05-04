@@ -118,6 +118,57 @@ def period_stats(period: str) -> dict:
     }
 
 
+_PERIOD_LABELS = {"daily": "Daily", "weekly": "Weekly", "monthly": "Monthly"}
+
+
+def employee_worklife(employee: Employee, period: str) -> dict[str, object]:
+    """
+    Per-employee workload snapshot for daily / weekly / monthly windows.
+
+    Open workload uses the same task window as Statistics (due or created in range).
+    Completed workload counts tasks finished in-range by ``completed_at`` date.
+    """
+    start, end = _date_bounds(period)
+    window = Q(due_date__range=(start, end)) | Q(created_at__date__range=(start, end))
+    base = Task.objects.filter(assigned_to=employee).filter(window)
+
+    open_statuses = [
+        Task.Status.PENDING,
+        Task.Status.IN_PROGRESS,
+        Task.Status.OVERDUE,
+    ]
+    open_qs = base.filter(status__in=open_statuses)
+    open_est = open_qs.aggregate(s=Sum("estimated_hours"))["s"] or 0
+
+    completed_qs = Task.objects.filter(
+        assigned_to=employee,
+        status=Task.Status.COMPLETED,
+        completed_at__isnull=False,
+        completed_at__date__range=(start, end),
+    )
+    actual_done = completed_qs.aggregate(s=Sum("actual_hours"))["s"] or 0
+
+    return {
+        "period": period,
+        "label": _PERIOD_LABELS[period],
+        "start": start,
+        "end": end,
+        "open_estimated_hours": float(open_est),
+        "actual_completed_hours": float(actual_done),
+        "open_task_count": open_qs.count(),
+        "completed_task_count": completed_qs.count(),
+        "overdue_count": base.filter(status=Task.Status.OVERDUE).count(),
+    }
+
+
+def employee_worklife_snapshots(employee: Employee) -> list[dict[str, object]]:
+    return [
+        employee_worklife(employee, "daily"),
+        employee_worklife(employee, "weekly"),
+        employee_worklife(employee, "monthly"),
+    ]
+
+
 def high_low_employees() -> tuple[list[dict], list[dict]]:
     data = []
     for emp in active_employees():

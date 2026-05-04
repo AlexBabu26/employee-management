@@ -17,6 +17,7 @@ from .services.analytics import (
     active_employees,
     completion_trend_monthly,
     daily_summary,
+    employee_worklife_snapshots,
     high_low_employees,
     period_stats,
     workload_distribution,
@@ -169,6 +170,7 @@ def employee_detail(request, pk):
             "tasks": tasks[:50],
             "load_hours": workload_hours(emp),
             "completed_count": completed,
+            "worklife": employee_worklife_snapshots(emp),
         },
     )
 

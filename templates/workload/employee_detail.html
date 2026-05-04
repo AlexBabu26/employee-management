@@ -36,6 +36,41 @@
   </div>
 </div>
 
+<div class="data-card worklife-card">
+  <p class="label">Worklife by period</p>
+  <h2>Daily, weekly &amp; monthly snapshot</h2>
+  <p class="text-muted small" style="margin:-0.35rem 0 1rem;">Open workload counts tasks with due date or creation date in the window (same logic as Statistics). Completed uses tasks finished in the window by completion date.</p>
+  <div class="table-wrap" style="border:none;">
+    <table class="worklife-table">
+      <thead>
+        <tr>
+          <th>Period</th>
+          <th class="num">Open est. h</th>
+          <th class="num">Actual done h</th>
+          <th class="num">Open tasks</th>
+          <th class="num">Completed</th>
+          <th class="num">Overdue</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for w in worklife %}
+        <tr>
+          <td>
+            <strong>{{ w.label }}</strong>
+            <span class="text-muted small" style="display:block;font-family:var(--font-mono);margin-top:0.2rem;">{{ w.start }} → {{ w.end }}</span>
+          </td>
+          <td class="num">{{ w.open_estimated_hours|floatformat:1 }}</td>
+          <td class="num">{{ w.actual_completed_hours|floatformat:1 }}</td>
+          <td class="num">{{ w.open_task_count }}</td>
+          <td class="num">{{ w.completed_task_count }}</td>
+          <td class="num">{% if w.overdue_count %}<span class="text-danger">{{ w.overdue_count }}</span>{% else %}0{% endif %}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
 <div class="data-card">
   <p class="label">Recent assignments</p>
   <h2>Tasks</h2>

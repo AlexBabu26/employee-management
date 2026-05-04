@@ -2,6 +2,7 @@
 Django settings for config project.
 """
 import os
+import sys
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -80,7 +81,19 @@ TEMPLATES = [
 WSGI_APPLICATION = "config.wsgi.application"
 
 _database_url = os.environ.get("DATABASE_URL")
-if _database_url:
+
+def _running_manage_py_test() -> bool:
+    return len(sys.argv) >= 2 and sys.argv[1] == "test"
+
+
+if _running_manage_py_test():
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": ":memory:",
+        }
+    }
+elif _database_url:
     import dj_database_url
 
     DATABASES = {

@@ -923,9 +923,24 @@ td a:hover { color: var(--sage); border-bottom-color: var(--sage); text-decorati
   .hours-legend { justify-content: flex-start; min-width: 0; }
 }
 
-/* ============================================================
-   Login (split editorial layout)
-   ============================================================ */
+.worklife-card {
+  margin-top: 1.25rem;
+  background:
+    radial-gradient(820px 240px at 85% 0%, rgba(111,163,154,0.08), transparent 55%),
+    linear-gradient(180deg, rgba(255,255,255,0.012), rgba(0,0,0,0.10)),
+    var(--surface);
+}
+.worklife-table { min-width: 560px; font-size: 0.93rem; }
+.worklife-table thead {
+  background:
+    linear-gradient(180deg, rgba(111,163,154,0.08), rgba(255,255,255,0.01)),
+    var(--bg-elev);
+}
+.worklife-table td strong { color: var(--text); }
+
+ /* ============================================================
+    Login (split editorial layout)
+    ============================================================ */
 .login {
   min-height: 100vh;
   display: grid;

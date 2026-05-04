@@ -6,7 +6,7 @@ from django.test import TestCase
 from django.utils import timezone
 
 from .models import Employee, Task
-from .services.analytics import employee_hour_breakdown
+from .services.analytics import employee_hour_breakdown, employee_worklife
 
 
 User = get_user_model()
@@ -78,3 +78,45 @@ class EmployeeHourBreakdownTests(TestCase):
                 },
             ],
         )
+
+
+class EmployeeWorklifeTests(TestCase):
+    def _employee(self, username: str, full_name: str):
+        user = User.objects.create_user(username=username, password="testpass123")
+        return Employee.objects.create(
+            user=user,
+            full_name=full_name,
+            email=f"{username}@example.com",
+            is_active=True,
+            date_joined=timezone.now().date(),
+        )
+
+    def test_daily_open_and_completed_use_expected_windows(self):
+        emp = self._employee("wluser", "Worklife Pat")
+        today = timezone.now().date()
+        Task.objects.create(
+            title="Open today window",
+            assigned_to=emp,
+            created_by=emp.user,
+            status=Task.Status.PENDING,
+            start_date=today - timedelta(days=1),
+            due_date=today,
+            estimated_hours=Decimal("2.5"),
+        )
+        Task.objects.create(
+            title="Done today",
+            assigned_to=emp,
+            created_by=emp.user,
+            status=Task.Status.COMPLETED,
+            start_date=today - timedelta(days=2),
+            due_date=today,
+            estimated_hours=Decimal("1.0"),
+            actual_hours=Decimal("4.0"),
+            completed_at=timezone.now(),
+        )
+
+        daily = employee_worklife(emp, "daily")
+        self.assertEqual(daily["open_estimated_hours"], 2.5)
+        self.assertEqual(daily["open_task_count"], 1)
+        self.assertEqual(daily["completed_task_count"], 1)
+        self.assertEqual(daily["actual_completed_hours"], 4.0)
